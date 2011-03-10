@@ -8,7 +8,10 @@
     <script src="{{ STATIC_URL }}game.js" type="text/javascript"></script>
 
     <h1>Have Fun!</h1>
-    <div id="messages">
+    <div id="messages" class="hide">
+    </div>
+    <div id="playagain" class="hide">
+        <a href="{% url create_computer_game %}">Play Again?</a>
     </div>
     {% for row in board.pieces %}
         <div class="cell" id="cell{{ forloop.counter0 }}" onclick="MakeMove(this, '{{ forloop.counter0 }}')">

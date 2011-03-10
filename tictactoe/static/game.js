@@ -10,12 +10,18 @@ function MakeMove(sender, move) {
                 }
 
                 if (data[1] == "Over") {
-                    $("#messages").html("GAME OVER! It was a tie");
+                    SetMessage("GAME OVER! It was a tie");
                 }
                 else if (data[1] == "X" || data[1] == "O") {
-                    $("#messages").html("THE WINNER IS " + data[1]);
+                    SetMessage("THE WINNER IS " + data[1]);
                 }
             }
         )
     }
+}
+
+function SetMessage(message) {
+    $("#messages").html(message);
+    $("#messages").show();
+    $("#playagain").show();
 }

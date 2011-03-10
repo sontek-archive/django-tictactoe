@@ -1,6 +1,6 @@
 @top-banner-bg-color: #143352;
 @top-banner-color: #FFF;
-@top-banner-anchor-color: #FFCC11; /*#E2E2B1;*/
+@top-banner-anchor-color: #FFCC11;
 @container-background-color: #D9EEF2;
 
 @separator-color: #444;
@@ -16,6 +16,15 @@
 p {
     padding: 5px;
 }
+
+#messages {
+    background-color: @top-banner-anchor-color;
+    border: solid 1px #000;
+    color: #000;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
 #banner {
     background-color: @top-banner-bg-color;
     color: @top-banner-color;
@@ -185,4 +194,8 @@ form input {
     border: 1px dashed #000;
     font-size: 90px;
     text-align: center;
+}
+
+.hide {
+    display: none;
 }
