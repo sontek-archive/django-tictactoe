@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>TicTacToe{% block title%}Welcome!{% endblock %}</title>
+    <meta name="description" content="TicTacToe" />
+    <link rel="stylesheet" type=text/css href="{{ STATIC_URL }}reset.css">
+    <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}styles.less">
+
+    <script src="{{ STATIC_URL }}jquery-1.5.1.min.js"></script>
+    <script src="{{ STATIC_URL }}core.js"></script>
+    <script src="{{ STATIC_URL }}less-1.0.41.min.js"></script>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+</head>
+<body class="body">
+    <div id="banner">
+        <nav id="user-nav">
+                <div id="user-status">
+                    {% if user.is_authenticated %}
+                        Welcome, <a href="#">sontek</a> (<a href="{% url logout %}">Logout</a>)
+                    {% else %}
+                        <a href="{% url login %}">Log in</a>
+                    {% endif %}
+                </div>
+                <h1><a href="/">TicTacToe</a></h1>
+            <br class="clear" />
+        </nav>
+    </div>
+
+    <div id="container">
+        <div id="content-related">
+                {% block content-related %}{% endblock %}
+        </div>
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
+        <br class="clear" />
+    </div>
+
+    <div id="footlinks"></div>
+</body>
+</html>

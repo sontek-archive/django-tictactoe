@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Sign up{% endblock %}
+
+{% block content %}
+
+  {% if form.errors %}
+  <p class="errors">Please correct the errors below: {{ form.non_field_errors }}</p>
+  {% endif %}
+
+  <h1>Create an account</h1>
+
+  <form method="post" action=".">
+    {% csrf_token %}
+    <dl>
+        <dt><label for="id_username">{{ form.username.label }}:</label></dt>
+        <dd>{{ form.username }}{% if form.username.errors %} <span class="errors">{{ form.username.errors|join:", " }}</span>{% endif %}</dd>
+        <dt><label for="id_password1">{{ form.password1.label }}:</label></dt>
+        <dd>{{ form.password1 }}{% if form.password1.errors %} <span class="errors">{{ form.password1.errors|join:", " }}</span>{% endif %}</dd>
+        <dt><label for="id_password2">{{ form.password2.label }}:</label></dt>
+        <dd>{{ form.password2 }}{% if form.password2.errors %} <span class="errors">{{ form.password2.errors|join:", " }}</span>{% endif %}</dd>
+    </dl>
+    <p class="submit"><input type="submit" value="Register"></p>
+  </form>
+  
+{% endblock %}
+
+{% block content-related %}
+<div class="box">
+    <p>Fill out the form to the left (all fields are required), and your
+    account will be created; you'll be sent an email with instructions on how
+    to finish your registration.</p>
+
+    <p>We'll only use your email to send you signup instructions. We hate spam
+    as much as you do.</p>
+
+    <p>If you already have an account, you can <a href="{% url login %}">log in</a>.</p>
+</div>
+{% endblock %}

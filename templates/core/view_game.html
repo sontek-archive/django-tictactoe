@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load custom_filters %}
+    <script type="text/javascript">
+        var create_move_url = "{% url create_move game.id %}";
+        var player = "{{ player }}"
+    </script>
+    <script src="{{ STATIC_URL }}game.js" type="text/javascript"></script>
+
+    <h1>Have Fun!</h1>
+    <div id="messages">
+    </div>
+    {% for row in board.pieces %}
+        <div class="cell" id="cell{{ forloop.counter0 }}" onclick="MakeMove(this, '{{ forloop.counter0 }}')">
+            {{ row }} 
+        </div>
+        {% if forloop.counter|divisibleby:3 %}
+            <br class="clear" />
+        {% endif %}
+    {% endfor %}
+{% endblock %}

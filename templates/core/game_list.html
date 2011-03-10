@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>What would you like to do?<h1>
+    <p>
+        <h3>Invite friend to play.</h3>
+        <label for="email">Email Address:<label><input type="input" id="email"></input>
+        <input type="button" value="Send Invite"></input>
+    </p>
+    <p>
+        <h3>Play against the computer.</h3>
+        <a href="{% url create_computer_game %}">Start Game</a>
+    </p>
+{% endblock %}
+{% block content-related %}
+<div class="box">
+    <h3>Game List</h3>
+    <ul>
+    {% for game in games %}
+        <li>
+        vs <a href="{% url view_game game.id %}">
+            {% if user == game.player1 %}
+                {{ game.player2 }}
+            {% else %}
+                {{ game.player1 }}
+            {% endif %}
+        </a>
+            {% with board=game.get_board %}
+                {% with winner=board.get_winner %}
+                    {% if winner %}
+                        {% if winner == "X" %}
+                            (winner: {{ game.player1 }})
+                        {% else %}
+                            (winner: {{ game.player2 }})
+                        {% endif %}
+                    {% endif %}
+                    {% with moves=board.get_valid_moves %}
+                        {% if not moves %}
+                            (tie)
+                        {% endif %}
+                    {% endwith %}
+                {% endwith %}
+            {% endwith %}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}
