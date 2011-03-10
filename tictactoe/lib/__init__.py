@@ -10,7 +10,6 @@ class Board(object):
     def __init__(self):
         """ Initialize all members. """
         self.pieces = [Empty] * 9
-        self.field_names = '123456789'
 
     def all_equal(self, list):
         """ Returns True if all the elements in a list are equal, or if the list is empty. """
@@ -38,10 +37,6 @@ class Board(object):
     def is_game_over(self):
         """ Returns True if one player has won or if there are no valid moves left. """
         return self.get_winner() or not self.get_valid_moves()
-
-    def get_move_name(self, move):
-        """ Returns a human-readable name for a move """
-        return self.field_names[move]
 
     def make_move(self, move, player):
         """ Plays a move. Note: this doesn't check if the move is legal! """
