@@ -7,7 +7,7 @@ from django.conf.urls.defaults import patterns, include, url
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'TicTacToe.views.home', name='home'),
-    url(r'', include('TicTacToe.core.urls')),
+    url(r'', include('tictactoe.core.urls')),
     (r'^accounts/', include('registration.urls')),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', 
         name='login'),

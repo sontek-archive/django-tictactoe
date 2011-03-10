@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib.auth.decorators import login_required
-from TicTacToe.core.views import game_list, create_computer_game, view_game, create_move
+from tictactoe.core.views import game_list, create_computer_game, view_game, create_move
 
 urlpatterns = patterns('core.views',
     url(r'^$', game_list, name='game_list'),

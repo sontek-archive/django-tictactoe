@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
-from TicTacToe.lib import Player_X, Player_O, Board
+from tictactoe.lib import Player_X, Player_O, Board
 
 class Game(models.Model):
     player1 = models.ForeignKey(User, related_name='player1')
@@ -26,6 +26,9 @@ class Game(models.Model):
 
     def get_valid_moves(self):
         return self.get_board().get_valid_moves()
+
+    class Meta:
+        ordering = ['-id']
 
 class GameInvite(models.Model):
     game = models.ForeignKey(Game)

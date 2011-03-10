@@ -8,8 +8,8 @@ from django.contrib.auth.decorators import login_required
 import simplejson
 import random
 
-from TicTacToe.core.models import Game, GameMove
-from TicTacToe.lib import Player_X, Player_O
+from tictactoe.core.models import Game, GameMove
+from tictactoe.lib import Player_X, Player_O
 
 @login_required
 def create_move(request, game_id):
