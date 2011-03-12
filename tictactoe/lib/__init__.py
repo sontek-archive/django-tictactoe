@@ -84,6 +84,13 @@ class Board(object):
         if 4 in valid_moves:
             return 4
 
+        # Force a move into the side if we are in the center
+        sides = [1, 3, 5, 7]
+        if self.pieces[4] == player:
+            for side, replacement in zip(sides, sides[::-1]):
+                if side in valid_moves and replacement in valid_moves:
+                    return side
+
         # Play opposite of opponent's corner
         corners = [0, 2, 6, 8]
         for corner, replacement in zip(corners, corners[::-1]):

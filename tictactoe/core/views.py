@@ -10,6 +10,7 @@ import random
 
 from tictactoe.core.models import Game, GameMove
 from tictactoe.lib import Player_X, Player_O
+from tictactoe.core.forms import GameInviteForm
 
 @login_required
 def create_move(request, game_id):
@@ -103,8 +104,14 @@ def view_game(request, game_id, template_name='core/view_game.html'):
 def game_list(request, template_name='core/game_list.html'):
     games = Game.objects.filter(Q(player1=request.user) | Q(player2=request.user))[:10]
 
-    context = { 'games': games }
+    if request.POST:
+        form = GameInviteForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+    else:
+        form = GameInviteForm()
 
+    context = { 'games': games, 'form': form }
     return render_to_response(template_name, context,
             context_instance=RequestContext(request))
 
