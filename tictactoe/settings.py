@@ -9,6 +9,8 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
+ACCOUNT_ACTIVATION_DAYS = 5
+
 MANAGERS = ADMINS
 
 DATABASES = {

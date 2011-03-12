@@ -9,12 +9,14 @@
   {% endif %}
 
   <h1>Create an account</h1>
-
+  {{ form.errors }}
   <form method="post" action=".">
     {% csrf_token %}
     <dl>
         <dt><label for="id_username">{{ form.username.label }}:</label></dt>
         <dd>{{ form.username }}{% if form.username.errors %} <span class="errors">{{ form.username.errors|join:", " }}</span>{% endif %}</dd>
+        <dt><label for="id_email">{{ form.email.label }}:</label></dt>
+        <dd>{{ form.email }}{% if form.email.errors %} <span class="errors">{{ form.email.errors|join:", " }}</span>{% endif %}</dd>
         <dt><label for="id_password1">{{ form.password1.label }}:</label></dt>
         <dd>{{ form.password1 }}{% if form.password1.errors %} <span class="errors">{{ form.password1.errors|join:", " }}</span>{% endif %}</dd>
         <dt><label for="id_password2">{{ form.password2.label }}:</label></dt>
