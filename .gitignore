@@ -18,3 +18,4 @@ pip-log.txt
 .coverage
 .tox
 dev.db
+local_settings.py

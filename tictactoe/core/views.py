@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.db.models import Q
@@ -8,9 +9,9 @@ from django.contrib.auth.decorators import login_required
 import simplejson
 import random
 
-from tictactoe.core.models import Game, GameMove
+from tictactoe.core.models import Game, GameMove, GameInvite
 from tictactoe.lib import Player_X, Player_O
-from tictactoe.core.forms import GameInviteForm
+from tictactoe.core.forms import EmailForm
 
 @login_required
 def create_move(request, game_id):
@@ -101,17 +102,41 @@ def view_game(request, game_id, template_name='core/view_game.html'):
             context_instance=RequestContext(request))
 
 @login_required
+def accept_invite(request, key):
+    invite = GameInvite.objects.get(invite_key=key)
+    if invite:
+        game = invite.game
+        game.player2 = request.user
+        game.save()
+        invite.delete()
+
+        return redirect('view_game', game_id=game.id)
+
+@login_required
 def game_list(request, template_name='core/game_list.html'):
     games = Game.objects.filter(Q(player1=request.user) | Q(player2=request.user))[:10]
 
     if request.POST:
-        form = GameInviteForm(request.POST)
+        form = EmailForm(request.POST)
+
         if form.is_valid():
+            game = Game(player1=request.user)
+            game.save()
+
+            invite = GameInvite(game=game, salt_key=request.user.username)
+            invite.save()
+
             email = form.cleaned_data["email"]
+            from django.core.mail import send_mail
+            url = reverse('accept_invite', args=[invite.invite_key])
+
+            send_mail('You are invited to play tic tac toe :)', 'Click here! http://localhost:8000%s' % url, 'sontek@gmail.com',
+                        [email], fail_silently=False)
     else:
-        form = GameInviteForm()
+        form = EmailForm()
 
     context = { 'games': games, 'form': form }
+
     return render_to_response(template_name, context,
             context_instance=RequestContext(request))
 
