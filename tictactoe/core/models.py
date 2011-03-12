@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from tictactoe.lib import Player_X, Player_O, Board
+import hashlib
+import random
 
 class Game(models.Model):
     player1 = models.ForeignKey(User, related_name='player1')
@@ -36,8 +38,8 @@ class GameInvite(models.Model):
     is_active = models.BooleanField()
 
     def create_invite(self, game, user):
-        salt = sha.new(str(random.random())).hexdigest()[:5]
-        self.invite_key = sha.new(salt+user.username).hexdigest()
+        salt = hashlib.sha256(str(random.random())).hexdigest()[:5]
+        self.invite_key = hashlib.sha256(salt+user.username).hexdigest()
         self.game = game
         self.save()
         return self.invite_key
