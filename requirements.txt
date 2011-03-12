@@ -1,0 +1,13 @@
+amqplib
+anyjson
+celery
+distribute
+django-registration
+importlib
+kombu
+pyparsing
+python-dateutil
+simplejson
+wsgiref
+-e git+https://github.com/django/django.git#egg=django
+
