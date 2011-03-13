@@ -1,11 +1,14 @@
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.template import RequestContext
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.contrib.sites.models import Site
+
 import simplejson
 import random
 
@@ -96,21 +99,40 @@ def view_game(request, game_id, template_name='core/view_game.html'):
 
     player = Player_X if game.player1 == request.user else Player_O
 
-    context = { 'game': game, 'board': game.get_board(), 'player': player }
+    moves = game.gamemove_set.all().order_by('-id')
+
+    if not moves:
+        current_player = Player_X
+    else:
+        current_player = Player_O if moves[0].player == game.player1 else Player_X
+
+    context = { 'game': game, 'board': game.get_board(), 'player': player, 
+                'current_player': current_player
+              }
 
     return render_to_response(template_name, context,
             context_instance=RequestContext(request))
 
 @login_required
 def accept_invite(request, key):
-    invite = GameInvite.objects.get(invite_key=key)
-    if invite:
-        game = invite.game
+    import pdb;pdb.set_trace()
+    try:
+        invite = GameInvite.objects.get(invite_key=key, is_active=True)
+    except GameInvite.DoesNotExist:
+        raise Http404
+
+    game = invite.game
+
+    if invite and not request.user == game.player1:
         game.player2 = request.user
         game.save()
+
+        # No reason to keep the invites around
         invite.delete()
 
         return redirect('view_game', game_id=game.id)
+
+    raise Http404
 
 @login_required
 def game_list(request, template_name='core/game_list.html'):
@@ -123,14 +145,14 @@ def game_list(request, template_name='core/game_list.html'):
             game = Game(player1=request.user)
             game.save()
 
-            invite = GameInvite(game=game, salt_key=request.user.username)
+            invite = GameInvite(game=game, is_active=True)
             invite.save()
 
             email = form.cleaned_data["email"]
-            from django.core.mail import send_mail
-            url = reverse('accept_invite', args=[invite.invite_key])
 
-            send_mail('You are invited to play tic tac toe :)', 'Click here! http://localhost:8000%s' % url, 'sontek@gmail.com',
+            url = reverse('accept_invite', args=[invite.invite_key])
+            current_site = Site.objects.get_current()
+            send_mail('You are invited to play tic tac toe :)', 'Click here! %s%s' % (current_site.domain, url), 'sontek@gmail.com',
                         [email], fail_silently=False)
     else:
         form = EmailForm()

@@ -35,19 +35,13 @@ class Game(models.Model):
 class GameInvite(models.Model):
     game = models.ForeignKey(Game)
     invite_key = models.CharField(max_length=255)
-    is_active = models.BooleanField()
+    is_active = models.BooleanField(default=True)
 
-    def __init__(self, *args, **kwargs):
-        salt_key = None
+    def save(self, *args, **kwargs):
+        salt = hashlib.sha256(str(random.random())).hexdigest()[:5]
+        self.invite_key = hashlib.sha256(salt + str(self.game.id)).hexdigest()
 
-        if kwargs.has_key('salt_key'):
-            salt_key = kwargs.pop('salt_key')
-
-        super(GameInvite, self).__init__(*args, **kwargs)
-
-        if salt_key:
-            salt = hashlib.sha256(str(random.random())).hexdigest()[:5]
-            self.invite_key = hashlib.sha256(salt+salt_key).hexdigest()
+        super(GameInvite, self).save(*args, **kwargs)
 
 
 class GameMove(models.Model):

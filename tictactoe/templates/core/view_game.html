@@ -3,7 +3,8 @@
     {% load custom_filters %}
     <script type="text/javascript">
         var create_move_url = "{% url create_move game.id %}";
-        var player = "{{ player }}"
+        var player = "{{ player }}";
+        var current_player = "{{ current_player }}";
     </script>
     <script src="{{ STATIC_URL }}game.js" type="text/javascript"></script>
 
@@ -13,6 +14,12 @@
     <div id="playagain" class="hide">
         <a href="{% url create_computer_game %}">Play Again?</a>
     </div>
+    {% if current_player == player %}
+        Your turn!
+    {% else %}
+        Your opponents turn!
+    {% endif %}
+    <br class="clear" />
     {% for row in board.pieces %}
         <div class="cell" id="cell{{ forloop.counter0 }}" onclick="MakeMove(this, '{{ forloop.counter0 }}')">
             {{ row }} 
