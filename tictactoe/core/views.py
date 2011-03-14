@@ -135,7 +135,7 @@ def accept_invite(request, key):
 
 @login_required
 def game_list(request, template_name='core/game_list.html'):
-    games = Game.objects.filter(Q(player1=request.user) | Q(player2=request.user))[:10]
+    games = Game.objects.get_by_user(request.user)[:10]
 
     if request.POST:
         form = EmailForm(request.POST)
