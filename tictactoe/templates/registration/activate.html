@@ -6,7 +6,7 @@
   <h1>Account activated.</h1>
   {% load humanize %}
   {% if account %}
-    <p>Thanks for signing up! Now you can <a href="/accounts/login/">log in</a>.</p>
+    <p>Thanks for signing up! Now you can <a href="{% url login %}">log in</a>.</p>
   {% else %}
     <p>Sorry, it didn't work. Either your activation link was incorrect, or
     the activation key for your account has expired; activation keys are

@@ -22,33 +22,37 @@
 <div class="box">
     <h3>Game List</h3>
     <ul>
-    {% for game in games %}
-        <li>
-        vs <a href="{% url view_game game.id %}">
-            {% if user == game.player1 %}
-                {{ game.player2 }}
-            {% else %}
-                {{ game.player1 }}
-            {% endif %}
-        </a>
-            {% with board=game.get_board %}
-                {% with winner=board.get_winner %}
-                    {% if winner %}
-                        {% if winner == "X" %}
-                            (winner: {{ game.player1 }})
-                        {% else %}
-                            (winner: {{ game.player2 }})
+    {% if games %}
+        {% for game in games %}
+            <li>
+            vs <a href="{% url view_game game.id %}">
+                {% if user == game.player1 %}
+                    {{ game.player2 }}
+                {% else %}
+                    {{ game.player1 }}
+                {% endif %}
+            </a>
+                {% with board=game.get_board %}
+                    {% with winner=board.get_winner %}
+                        {% if winner %}
+                            {% if winner == "X" %}
+                                (winner: {{ game.player1 }})
+                            {% else %}
+                                (winner: {{ game.player2 }})
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
-                    {% with moves=board.get_valid_moves %}
-                        {% if not moves %}
-                            (tie)
-                        {% endif %}
+                        {% with moves=board.get_valid_moves %}
+                            {% if not moves %}
+                                (tie)
+                            {% endif %}
+                        {% endwith %}
                     {% endwith %}
                 {% endwith %}
-            {% endwith %}
-        </li>
-    {% endfor %}
+            </li>
+        {% endfor %}
+    {% else %}
+        No Games
+    {% endif %}
     </ul>
 </div>
 {% endblock %}

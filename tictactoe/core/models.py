@@ -33,14 +33,14 @@ class Game(models.Model):
         ordering = ['-id']
 
 class GameInvite(models.Model):
-    game = models.ForeignKey(Game)
-    player = models.ForeignKey(User, blank=True, null=True)
+    inviter = models.ForeignKey(User, related_name='inviter')
+    invitee = models.ForeignKey(User, blank=True, null=True, related_name='invitee')
     invite_key = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         salt = hashlib.sha256(str(random.random())).hexdigest()[:5]
-        self.invite_key = hashlib.sha256(salt + str(self.game.id)).hexdigest()
+        self.invite_key = hashlib.sha256(salt + self.inviter.username).hexdigest()
 
         super(GameInvite, self).save(*args, **kwargs)
 

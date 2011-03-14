@@ -8,6 +8,7 @@ from django.core import serializers
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.contrib.sites.models import Site
+from django.contrib import messages
 
 import simplejson
 import random
@@ -120,10 +121,14 @@ def accept_invite(request, key):
     except GameInvite.DoesNotExist:
         raise Http404
 
-    game = invite.game
+    if not request.user == invite.inviter:
+        coin_toss = random.choice([0, 1])
 
-    if invite and not request.user == game.player1:
-        game.player2 = request.user
+        if coin_toss == 0:
+            game = Game(player1=invite.inviter, player2=request.user)
+        else:
+            game = Game(player1=request.user, player2=invite.inviter)
+
         game.save()
 
         # No reason to keep the invites around
@@ -141,31 +146,32 @@ def game_list(request, template_name='core/game_list.html'):
         form = EmailForm(request.POST)
 
         if form.is_valid():
-            game = Game(player1=request.user)
-            game.save()
-
             email = form.cleaned_data["email"]
 
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                user = None
+            if email == request.user.email:
+                messages.add_message(request, messages.ERROR, 'You are not allowed to invite yourself.')
+            else:
+                try:
+                    user = User.objects.get(email=email)
+                except User.DoesNotExist:
+                    user = None
 
-            invite = GameInvite(game=game, is_active=True)
+                invite = GameInvite(inviter=request.user, is_active=True)
 
-            if user:
-                invite.player = user
+                if user:
+                    invite.invitee = user
 
-            invite.save()
+                invite.save()
 
 
-            url = reverse('accept_invite', args=[invite.invite_key])
-            current_site = Site.objects.get_current()
-            send_mail('You are invited to play tic tac toe :)', 'Click here! %s%s' % (current_site.domain, url), 'sontek@gmail.com',
-                        [email], fail_silently=False)
-    else:
-        form = EmailForm()
+                url = reverse('accept_invite', args=[invite.invite_key])
+                current_site = Site.objects.get_current()
+                messages.add_message(request, messages.SUCCESS, 'Invite was sent!')
 
+                send_mail('You are invited to play tic tac toe :)', 'Click here! %s%s' % (current_site.domain, url), 'sontek@gmail.com',
+                            [email], fail_silently=False)
+
+    form = EmailForm()
     context = { 'games': games, 'form': form }
 
     return render_to_response(template_name, context,
