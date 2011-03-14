@@ -10,4 +10,5 @@ python-dateutil
 simplejson
 wsgiref
 -e git+https://github.com/django/django.git#egg=django
-
+redis
+gevent
