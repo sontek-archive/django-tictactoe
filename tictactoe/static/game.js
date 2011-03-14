@@ -1,7 +1,7 @@
 var computer = player == "X" ? "O" : "X";
 
 function MakeMove(sender, move) {
-    if (player == current_player) {
+    if (player == current_player && winner == '') {
         if ($(sender).text().trim() == "" && $("#messages").text().trim() == "") {
             $(sender).html(player);
             SwapUser();

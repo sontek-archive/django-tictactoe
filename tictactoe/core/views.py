@@ -107,7 +107,9 @@ def view_game(request, game_id, template_name='core/view_game.html'):
     else:
         current_player = Player_O if moves[0].player == game.player1 else Player_X
 
-    context = { 'game': game, 'board': game.get_board(), 'player': player, 
+    context = { 'game': game, 
+                'board': game.get_board(), 
+                'player': player, 
                 'current_player': current_player
               }
 
