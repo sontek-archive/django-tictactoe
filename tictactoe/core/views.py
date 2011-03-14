@@ -115,7 +115,6 @@ def view_game(request, game_id, template_name='core/view_game.html'):
 
 @login_required
 def accept_invite(request, key):
-    import pdb;pdb.set_trace()
     try:
         invite = GameInvite.objects.get(invite_key=key, is_active=True)
     except GameInvite.DoesNotExist:
@@ -145,10 +144,20 @@ def game_list(request, template_name='core/game_list.html'):
             game = Game(player1=request.user)
             game.save()
 
+            email = form.cleaned_data["email"]
+
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                user = None
+
             invite = GameInvite(game=game, is_active=True)
+
+            if user:
+                invite.player = user
+
             invite.save()
 
-            email = form.cleaned_data["email"]
 
             url = reverse('accept_invite', args=[invite.invite_key])
             current_site = Site.objects.get_current()

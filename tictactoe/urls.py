@@ -8,10 +8,10 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'TicTacToe.views.home', name='home'),
     url(r'', include('tictactoe.core.urls')),
-    (r'', include('registration.urls')),
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login', 
+    (r'^users/', include('registration.urls')),
+    url(r'^users/login/$', 'django.contrib.auth.views.login', 
         name='login'),
-    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout',
+    url(r'^users/logout/$', 'django.contrib.auth.views.logout',
         name='logout'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
