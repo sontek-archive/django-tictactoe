@@ -152,6 +152,7 @@ def game_list(request, template_name='core/game_list.html'):
 
             if email == request.user.email:
                 messages.add_message(request, messages.ERROR, 'You are not allowed to invite yourself.')
+                form = EmailForm()
             else:
                 try:
                     user = User.objects.get(email=email)
@@ -173,7 +174,10 @@ def game_list(request, template_name='core/game_list.html'):
                 send_mail('You are invited to play tic tac toe :)', 'Click here! %s%s' % (current_site.domain, url), 'sontek@gmail.com',
                             [email], fail_silently=False)
 
-    form = EmailForm()
+                form = EmailForm()
+    else:
+        form = EmailForm()
+
     context = { 'games': games, 'form': form }
 
     return render_to_response(template_name, context,
