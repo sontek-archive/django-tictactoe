@@ -10,6 +10,7 @@ parts
 bin
 develop-eggs
 .installed.cfg
+tags
 
 # Installer logs
 pip-log.txt

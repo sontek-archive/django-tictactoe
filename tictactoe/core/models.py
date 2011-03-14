@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
@@ -6,10 +7,15 @@ from tictactoe.lib import Player_X, Player_O, Board
 import hashlib
 import random
 
+class GameManager(models.Manager):
+    def get_by_user(self, user):
+        self.filter(Q(player1=user) | Q(player2=user))
+
 class Game(models.Model):
     player1 = models.ForeignKey(User, related_name='player1')
     # user is allowed to be null because we invite people to games
     player2 = models.ForeignKey(User, blank=True, null=True, related_name='player2')
+    objects = GameManager()
 
     def get_board(self):
         board = Board()

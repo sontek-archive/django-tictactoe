@@ -13,6 +13,8 @@ urlpatterns = patterns('',
         name='login'),
     url(r'^users/logout/$', 'django.contrib.auth.views.logout',
         name='logout'),
+    url(r'^live/$', 'live.views.updates'),
+    url(r'^live/publish/$', 'live.views.publish'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
