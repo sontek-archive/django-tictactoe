@@ -1,8 +1,8 @@
 var computer = player == "X" ? "O" : "X";
 
 function MakeMove(sender, move) {
-    if (player == current_player && winner == 'None') {
-        if ($(sender).text().trim() == "" && $("#messages").text().trim() == "") {
+    if (player == current_player && winner == "None") {
+        if ($(sender).text().trim() == "") {
             $(sender).html(player);
             SwapUser();
 
@@ -17,6 +17,7 @@ function MakeMove(sender, move) {
                         SetMessage("GAME OVER! It was a tie");
                     }
                     else if (data[1] == "X" || data[1] == "O") {
+                        winner = data[1];
                         SetMessage("THE WINNER IS " + data[1]);
                     }
 
@@ -28,7 +29,6 @@ function MakeMove(sender, move) {
 
 function SetMessage(message) {
     $("#messages").html(message);
-    $("#messages").show();
     $("#playagain").show();
 }
 
