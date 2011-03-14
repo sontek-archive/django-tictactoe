@@ -34,6 +34,7 @@ class Game(models.Model):
 
 class GameInvite(models.Model):
     game = models.ForeignKey(Game)
+    player = models.ForeignKey(User, blank=True, null=True)
     invite_key = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
 
