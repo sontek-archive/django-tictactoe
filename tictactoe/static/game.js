@@ -28,6 +28,35 @@ function MakeMove(sender, move) {
     }
 }
 
+function play_move(obj)
+{
+    if (obj.message.type == "message") {
+        var channel = obj.message.channel.replace("#", "");
+        if (channel == game_id) {
+            var data = eval(obj.message.data);
+            if (data[0] != player) {
+                $("#cell" + data[1]).html(data[0]);
+                current_player = player;
+                SetMessage("Your turn!");
+            }
+            else {
+                current_player = computer;
+                SetMessage("Your opponents turn!");
+            }
+        }
+    }
+}
+
+if (playing_computer == "False") {
+    socket.connect();
+
+    socket.on('message', function(obj){
+        play_move(obj);
+    });
+
+    socket.send("subscribe:#" + game_id);
+}
+
 function SetMessage(message) {
     $("#messages").html(message);
     $("#playagain").show();

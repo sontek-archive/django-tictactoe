@@ -65,22 +65,26 @@ def create_move(request, game_id):
         board.make_move(move, player)
 
         if board.is_game_over():
-            return _game_over(board)
+            return JsonResponse(_game_over(board))
 
         red = Redis(REDIS_HOST)
         red.publish('#%d' % game.id, [player, move])
 
-        print 'published move'
-
         # Are we playing against a bot?
         computer = User.objects.get(username='bot')
+
         if game.player1 == computer or game.player2 == computer:
             move, board = _create_computer_move(game, board)
 
             if board.is_game_over():
-                return _game_over(board, move=move)
+                return JsonResponse(_game_over(board, move=move))
 
-            return HttpResponse(simplejson.dumps([move, '']), mimetype='application/json')
+            return JsonResponse([move, ''])
+        else:
+            if board.is_game_over():
+                red.publish('#%d' % _game_over(board, move))
+
+    return HttpResponse()
 
 def _create_computer_move(game, board):
     computer = User.objects.get(username='bot')
@@ -102,11 +106,14 @@ def _game_over(board, move=None):
 
     if winner:
         data.append(winner)
-        return HttpResponse(simplejson.dumps(data), mimetype='application/json')
+        return data
 
     if len(board.get_valid_moves()) == 0:
         data.append('Over');
-        return HttpResponse(simplejson.dumps(data), mimetype='application/json')
+        return data
+
+def JsonResposne(data):
+    return HttpResponse(simplejson.dumps(data), mimetype='application/json')
 
 def _get_bot():
     try:

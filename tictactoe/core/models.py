@@ -47,7 +47,7 @@ class Game(models.Model):
         return self.get_board().get_valid_moves()
 
     class Meta:
-        ordering = ['-id', 'winner']
+        ordering = ['-id']
 
 class GameInvite(models.Model):
     inviter = models.ForeignKey(User, related_name='inviter')
