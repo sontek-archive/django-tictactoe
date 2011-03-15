@@ -1,7 +1,7 @@
-django
 django-registration
 gevent
 redis==2.2.2
 simplejson
 hg+https://bitbucket.org/Jeffrey/gevent-websocket#egg=gevent-websocket
 hg+https://bitbucket.org/Jeffrey/gevent-socketio#egg=gevent-socketio
+-e git+https://github.com/django/django.git#egg=django
