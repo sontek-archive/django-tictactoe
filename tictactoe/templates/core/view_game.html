@@ -27,8 +27,6 @@
         }
 
         socket.connect();
-        socket.send("subscribe:foo");
-
 
         socket.on('message', function(obj){
             if ('buffer' in obj)
@@ -43,6 +41,10 @@
                 message(obj);
             }
         });
+
+        socket.send("subscribe:#foo");
+
+
     </script>
 
     <script src="{{ STATIC_URL }}game.js" type="text/javascript"></script>

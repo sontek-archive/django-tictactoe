@@ -19,33 +19,25 @@ from core.forms import EmailForm
 
 from redis import Redis
 from django.conf import settings
+from gevent.greenlet import Greenlet
 
 REDIS_HOST = getattr(settings, 'REDIS_HOST', 'localhost')
 
-class MessageChannel(object):
-    def __init__(self):
-        self.red = Redis(REDIS_HOST)
+def sub_listener(socketio, chan):
+        print 'in sublistener...'
+        red = Redis(REDIS_HOST)
+        red.subscribe(chan)
 
-    def publish(self, chan, msg):
-        """ Handle incoming message for everyone. """
-        self.red.publish(chan, msg)
-
-    def subscribe(self, chan):
-        self.red.subscribe(chan)
-
-    def get_updates(self):
-        event_list = []
-        
-        for msg in self.red.listen():
-            if msg['data'] == 'unsubscribe':
-                self.red.unsubscribe(msg['channel'])
-            event_list.append(msg['data'])
-
-        return event_list
+        while True:
+            for i in red.listen():
+                    print 'sending message'
+                    socketio.send({'message': i})
 
 def socketio(request):
     socketio = request.environ['socketio']
-    request.session['chan'] = chan = MessageChannel()
+
+    if socketio.on_connect():
+        print 'connecting'
 
     while True:
         message = socketio.recv()
@@ -54,12 +46,8 @@ def socketio(request):
             message = message[0].split(':')
 
             if message[0] == 'subscribe':
-                chan.subscribe(message[1])
-
-        updates = chan.get_updates()
-
-        if updates:
-            socketio.send({'message': updates})
+                print 'spawning sub listener'
+                g = Greenlet.spawn(sub_listener, socketio, message[1])
 
     return HttpResponse()
 
@@ -79,8 +67,9 @@ def create_move(request, game_id):
         if board.is_game_over():
             return _game_over(board)
 
-        chan = MessageChannel()
-        chan.publish('foo', move)
+        red = Redis(REDIS_HOST)
+        red.publish('#foo', move)
+        print 'published move'
 
         # Are we playing against a bot?
         computer = User.objects.get(username='bot')
