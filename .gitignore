@@ -1,6 +1,4 @@
 *.py[co]
-
-# Packages
 *.egg
 *.egg-info
 dist
@@ -11,11 +9,7 @@ bin
 develop-eggs
 .installed.cfg
 tags
-
-# Installer logs
 pip-log.txt
-
-# Unit test / coverage reports
 .coverage
 .tox
 dev.db
