@@ -30,8 +30,8 @@ def sub_listener(socketio, chan):
 
         while True:
             for i in red.listen():
-                    print 'sending message'
-                    socketio.send({'message': i})
+                print 'sending message'
+                socketio.send({'message': i})
 
 def socketio(request):
     socketio = request.environ['socketio']
@@ -68,7 +68,8 @@ def create_move(request, game_id):
             return _game_over(board)
 
         red = Redis(REDIS_HOST)
-        red.publish('#foo', move)
+        red.publish('#%d' % game.id, [player, move])
+
         print 'published move'
 
         # Are we playing against a bot?

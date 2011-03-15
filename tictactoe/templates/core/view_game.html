@@ -11,45 +11,38 @@
 
         var socket = new io.Socket(null, {port: {{ request.environ.SERVER_PORT }}, rememberTransport: false});
 
-        function message(obj)
+        function play_move(obj)
         {
-            if (obj.message) {
-                alert(obj.message);
+            if (obj.message.type == "message") {
+                var channel = obj.message.channel.replace("#", "");
+                if (channel == "{{ game.id }}") {
+                    var data = eval(obj.message.data);
+                    if (data[0] != player) {
+                        $("#cell" + data[1]).html(data[0]);
+                        current_player = player;
+                        SetMessage("Your turn!");
+                    }
+                    else {
+                        current_player = computer;
+                        SetMessage("Your opponents turn!");
+                    }
+                }
             }
-            else {
-                alert(obj.announcement);
-            }
-        }
-
-        function send()
-        {
-            socket.send("HI");
         }
 
         socket.connect();
 
         socket.on('message', function(obj){
-            if ('buffer' in obj)
-            {
-                for (var i in obj.buffer)
-                {
-                    message(obj.buffer[i]);
-                }
-            }
-            else 
-            {
-                message(obj);
-            }
+            play_move(obj);
         });
 
-        socket.send("subscribe:#foo");
+        socket.send("subscribe:#{{ game.id }}");
 
 
     </script>
 
     <script src="{{ STATIC_URL }}game.js" type="text/javascript"></script>
 
-    <a href="#" onclick="send(); return true;">Click!!</a>
     <h1>Have Fun!</h1>
     <div id="messages" class="messages">
         {% if board.get_winner %}
