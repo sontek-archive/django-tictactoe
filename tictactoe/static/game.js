@@ -36,8 +36,18 @@ function play_move(obj)
             var data = eval(obj.message.data);
             if (data[0] != player) {
                 $("#cell" + data[1]).html(data[0]);
-                current_player = player;
-                SetMessage("Your turn!");
+                if (data.length == 2) {
+                    current_player = player;
+                    SetMessage("Your turn!");
+                }
+                else {
+                    if (data[2] == "X" || data[2] == "O") {
+                        SetMessage("Game Over, winner is " + data[2]);
+                    }
+                    else {
+                        SetMessage("Game Over, its a tie");
+                    }
+                }
             }
             else {
                 current_player = computer;

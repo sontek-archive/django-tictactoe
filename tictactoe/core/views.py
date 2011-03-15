@@ -54,7 +54,6 @@ def socketio(request):
 @login_required
 def create_move(request, game_id):
     game = _get_game(request.user, game_id)
-
     if request.POST:
         move = int(request.POST['move'])
         player = Player_X if game.player1 == request.user else Player_O
@@ -64,16 +63,13 @@ def create_move(request, game_id):
         board = game.get_board()
         board.make_move(move, player)
 
-        if board.is_game_over():
-            return JsonResponse(_game_over(board))
-
         red = Redis(REDIS_HOST)
         red.publish('#%d' % game.id, [player, move])
 
         # Are we playing against a bot?
         computer = User.objects.get(username='bot')
 
-        if game.player1 == computer or game.player2 == computer:
+        if computer in [game.player1, game.player2]:
             move, board = _create_computer_move(game, board)
 
             if board.is_game_over():
@@ -82,7 +78,10 @@ def create_move(request, game_id):
             return JsonResponse([move, ''])
         else:
             if board.is_game_over():
-                red.publish('#%d' % _game_over(board, move))
+                data = _game_over(board, move)
+                # have to revserse the data because I'm handling it differently
+                # on the redis calls, didn't want to rewrite
+                red.publish('#%d' % game.id, ['', data[0], board.get_winner()])
 
     return HttpResponse()
 
@@ -112,7 +111,7 @@ def _game_over(board, move=None):
         data.append('Over');
         return data
 
-def JsonResposne(data):
+def JsonResponse(data):
     return HttpResponse(simplejson.dumps(data), mimetype='application/json')
 
 def _get_bot():
