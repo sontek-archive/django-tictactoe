@@ -8,6 +8,7 @@
         var player = "{{ player }}";
         var current_player = "{{ current_player }}";
         var winner = "{{ board.get_winner }}";
+        var playing_computer = "{{ playing_computer }}";
 
         var socket = new io.Socket(null, {port: {{ request.environ.SERVER_PORT }}, rememberTransport: false});
 
@@ -30,15 +31,16 @@
             }
         }
 
-        socket.connect();
+        if (!playing_computer) {
+            socket.connect();
 
-        socket.on('message', function(obj){
-            play_move(obj);
-        });
+            socket.on('message', function(obj){
+                play_move(obj);
+            });
 
-        socket.send("subscribe:#{{ game.id }}");
+            socket.send("subscribe:#{{ game.id }}");
 
-
+        }
     </script>
 
     <script src="{{ STATIC_URL }}game.js" type="text/javascript"></script>

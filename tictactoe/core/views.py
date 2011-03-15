@@ -108,13 +108,18 @@ def _game_over(board, move=None):
         data.append('Over');
         return HttpResponse(simplejson.dumps(data), mimetype='application/json')
 
-@login_required
-def create_computer_game(request):
+def _get_bot():
     try:
         bot = User.objects.get(username='bot')
     except User.DoesNotExist:
         bot = User(username='bot')
         bot.save()
+    finally:
+        return bot
+
+@login_required
+def create_computer_game(request):
+    bot = _get_bot()
 
     coin_toss = random.choice([0, 1])
 
@@ -135,6 +140,8 @@ def create_computer_game(request):
 
 @login_required
 def view_game(request, game_id, template_name='core/view_game.html'):
+    bot = _get_bot()
+
     game = _get_game(request.user, game_id)
 
     player = Player_X if game.player1 == request.user else Player_O
@@ -145,11 +152,14 @@ def view_game(request, game_id, template_name='core/view_game.html'):
         current_player = Player_X
     else:
         current_player = Player_O if moves[0].player == game.player1 else Player_X
+    
+    playing_computer = bot in [game.player1, game.player2]
 
     context = { 'game': game, 
                 'board': game.get_board(), 
                 'player': player, 
-                'current_player': current_player
+                'current_player': current_player,
+                'playing_computer': playing_computer
               }
 
     return render_to_response(template_name, context,
@@ -181,7 +191,7 @@ def accept_invite(request, key):
 
 @login_required
 def game_list(request, template_name='core/game_list.html'):
-    games = Game.objects.get_by_user(request.user)
+    games = Game.objects.get_by_user(request.user)[:15]
 
     if request.POST:
         form = EmailForm(request.POST)

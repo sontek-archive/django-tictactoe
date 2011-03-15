@@ -12,9 +12,10 @@ class GameManager(models.Manager):
         return self.filter(Q(player1=user) | Q(player2=user))
 
 class Game(models.Model):
-    player1 = models.ForeignKey(User, related_name='player1')
+    player1 = models.ForeignKey(User, related_name='player1_set')
     # user is allowed to be null because we invite people to games
-    player2 = models.ForeignKey(User, blank=True, null=True, related_name='player2')
+    player2 = models.ForeignKey(User, blank=True, null=True, related_name='player2_set')
+    winner = models.ForeignKey(User, blank=True, null=True, related_name='winner_set')
     objects = GameManager()
 
     def get_board(self):
@@ -30,13 +31,23 @@ class Game(models.Model):
         return board
 
     def get_winner(self):
-        return self.get_board().get_winner()
+
+        if self.winner:
+            return self.winner
+
+        winner = self.get_board().get_winner()
+
+        if winner:
+            if winner == 'X':
+                self.winner = self.player1
+            else:
+                self.winner = self.player2
 
     def get_valid_moves(self):
         return self.get_board().get_valid_moves()
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['-id', 'winner']
 
 class GameInvite(models.Model):
     inviter = models.ForeignKey(User, related_name='inviter')
