@@ -81,9 +81,6 @@ def create_move(request, game_id):
 
             return HttpResponse(simplejson.dumps([move, '']), mimetype='application/json')
 
-    # success! 
-    return HttpResponse(simplejson.dumps(['', '']), mimetype='application/json')
-
 def _create_computer_move(game, board):
     computer = User.objects.get(username='bot')
     cpu = Player_X if game.player1 == computer else Player_O

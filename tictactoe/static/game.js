@@ -9,6 +9,7 @@ function MakeMove(sender, move) {
             $.post(create_move_url, {'move': move},
                 function(data) {
                     SwapUser();
+
                     if(data[0] != '') {
                         $("#cell" + data[0]).html(computer);
                     }
