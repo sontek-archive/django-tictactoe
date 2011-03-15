@@ -1,20 +1,16 @@
 #!/usr/bin/env python
-from gevent import monkey; monkey.patch_all()
-from gevent.wsgi import WSGIServer
 
-import sys
+PORT = 9000
+
 import os
-import traceback
 
-from django.core.handlers.wsgi import WSGIHandler
-from django.core.management import call_command
-from django.core.signals import got_request_exception
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
-def exception_tracer(sender, **kwargs):
-    traceback.print_exc()
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()
 
-got_request_exception.connect(exception_tracer)
+from socketio import SocketIOServer
 
-call_command('syncdb')
-print 'Serving on port 8080'
-WSGIServer(('', 8088), WSGIHandler()).serve_forever()
+if __name__ == '__main__':
+    print 'Listening on port %s and on port 843 (flash policy server)' % PORT
+    SocketIOServer(('', PORT), application, resource="socket.io").serve_forever()

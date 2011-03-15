@@ -7,14 +7,12 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'TicTacToe.views.home', name='home'),
-    url(r'', include('tictactoe.core.urls')),
+    url(r'', include('core.urls')),
     (r'^users/', include('registration.urls')),
     url(r'^users/login/$', 'django.contrib.auth.views.login', 
         name='login'),
     url(r'^users/logout/$', 'django.contrib.auth.views.logout',
         name='logout'),
-    url(r'^live/$', 'live.views.updates'),
-    url(r'^live/publish/$', 'live.views.publish'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

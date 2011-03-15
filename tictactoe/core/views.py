@@ -13,9 +13,55 @@ from django.contrib import messages
 import simplejson
 import random
 
-from tictactoe.core.models import Game, GameMove, GameInvite
-from tictactoe.lib import Player_X, Player_O
-from tictactoe.core.forms import EmailForm
+from core.models import Game, GameMove, GameInvite
+from lib import Player_X, Player_O
+from core.forms import EmailForm
+
+from redis import Redis
+from django.conf import settings
+
+REDIS_HOST = getattr(settings, 'REDIS_HOST', 'localhost')
+
+class MessageChannel(object):
+    def __init__(self):
+        self.red = Redis(REDIS_HOST)
+
+    def publish(self, chan, msg):
+        """ Handle incoming message for everyone. """
+        self.red.publish(chan, msg)
+
+    def subscribe(self, chan):
+        self.red.subscribe(chan)
+
+    def get_updates(self):
+        event_list = []
+        
+        for msg in self.red.listen():
+            if msg['data'] == 'unsubscribe':
+                self.red.unsubscribe(msg['channel'])
+            event_list.append(msg['data'])
+
+        return event_list
+
+def socketio(request):
+    socketio = request.environ['socketio']
+    request.session['chan'] = chan = MessageChannel()
+
+    while True:
+        message = socketio.recv()
+
+        if len(message) == 1:
+            message = message[0].split(':')
+
+            if message[0] == 'subscribe':
+                chan.subscribe(message[1])
+
+        updates = chan.get_updates()
+
+        if updates:
+            socketio.send({'message': updates})
+
+    return HttpResponse()
 
 @login_required
 def create_move(request, game_id):
@@ -33,6 +79,9 @@ def create_move(request, game_id):
         if board.is_game_over():
             return _game_over(board)
 
+        chan = MessageChannel()
+        chan.publish('foo', move)
+
         # Are we playing against a bot?
         computer = User.objects.get(username='bot')
         if game.player1 == computer or game.player2 == computer:
@@ -42,6 +91,9 @@ def create_move(request, game_id):
                 return _game_over(board, move=move)
 
             return HttpResponse(simplejson.dumps([move, '']), mimetype='application/json')
+
+    # success! 
+    return HttpResponse(simplejson.dumps(['', '']), mimetype='application/json')
 
 def _create_computer_move(game, board):
     computer = User.objects.get(username='bot')
@@ -142,7 +194,7 @@ def accept_invite(request, key):
 
 @login_required
 def game_list(request, template_name='core/game_list.html'):
-    games = Game.objects.get_by_user(request.user)[:10]
+    games = Game.objects.get_by_user(request.user)
 
     if request.POST:
         form = EmailForm(request.POST)

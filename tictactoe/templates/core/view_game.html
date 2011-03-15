@@ -1,14 +1,53 @@
 {% extends "base.html" %}
 {% block content %}
     {% load custom_filters %}
+    <script src="http://cdn.socket.io/stable/socket.io.js" type="text/javascript"></script>
+
     <script type="text/javascript">
         var create_move_url = "{% url create_move game.id %}";
         var player = "{{ player }}";
         var current_player = "{{ current_player }}";
         var winner = "{{ board.get_winner }}";
+
+        var socket = new io.Socket(null, {port: {{ request.environ.SERVER_PORT }}, rememberTransport: false});
+
+        function message(obj)
+        {
+            if (obj.message) {
+                alert(obj.message);
+            }
+            else {
+                alert(obj.announcement);
+            }
+        }
+
+        function send()
+        {
+            socket.send("HI");
+        }
+
+        socket.connect();
+        socket.send("subscribe:foo");
+
+
+        socket.on('message', function(obj){
+            if ('buffer' in obj)
+            {
+                for (var i in obj.buffer)
+                {
+                    message(obj.buffer[i]);
+                }
+            }
+            else 
+            {
+                message(obj);
+            }
+        });
     </script>
+
     <script src="{{ STATIC_URL }}game.js" type="text/javascript"></script>
 
+    <a href="#" onclick="send(); return true;">Click!!</a>
     <h1>Have Fun!</h1>
     <div id="messages" class="messages">
         {% if board.get_winner %}
