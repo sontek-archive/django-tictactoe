@@ -70,6 +70,9 @@ def create_move(request, game_id):
         computer = User.objects.get(username='bot')
 
         if computer in [game.player1, game.player2]:
+            if board.is_game_over():
+                return JsonResponse(['', "Over"])
+
             move, board = _create_computer_move(game, board)
 
             if board.is_game_over():
