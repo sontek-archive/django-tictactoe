@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 {% block messages %}
-    {% if board.get_winner %}
-        The winner is: {{ board.get_winner }}
+    {% if board.is_game_over %}
+        {% with board.get_winner as winner %}
+            {% if winner %}
+                The winner is: {{ board.get_winner }}
+            {% else %}
+                Its a tie!
+            {% endif %}
+        {% endwith %}
     {% else %}
         {% if current_player == player %}
             Your turn!
@@ -17,6 +23,7 @@
         var player = "{{ player }}";
         var current_player = "{{ current_player }}";
         var winner = "{{ board.get_winner }}";
+        var game_over = {{ board.is_game_over|lower }};
         var playing_computer = "{{ playing_computer }}";
         var game_id = {{ game.id }};
     </script>

@@ -70,7 +70,7 @@ def create_move(request, game_id):
 
         # if game over, and not playing against computer,  send notification of move, and of game over
         winner = board.get_winner()
-        import pdb;pdb.set_trace()
+
         if board.is_game_over():
             red.publish('%d' % request.user.id, ['game_over', game.id, winner])
 
@@ -80,11 +80,11 @@ def create_move(request, game_id):
         else:
             if playing_computer:
                 move, board = _create_computer_move(game, board)
+                red.publish('%d' % request.user.id, ['opponent_moved', game.id, opponent_player, move])
+
                 if board.is_game_over():
                     winner = board.get_winner()
                     red.publish('%d' % request.user.id, ['game_over', game.id, winner])
-                else:
-                    red.publish('%d' % request.user.id, ['opponent_moved', game.id, opponent_player, move])
             else:
                 red.publish('%d' % opponent_user.id, ['opponent_moved', game.id, tic_player, move])
 

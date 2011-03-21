@@ -29,6 +29,8 @@ class Board(object):
             if self.pieces[row[0]] != Empty and self.all_equal([self.pieces[i] for i in row]):
                 return self.pieces[row[0]]
 
+        return ''
+
     def get_valid_moves(self, moves_to_check=range(9)):
         """ Returns a list of valid moves. A move can be passed to get_move_name to
         retrieve a human-readable name or to make_move/undo_move to play it."""
