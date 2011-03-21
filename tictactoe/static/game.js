@@ -8,20 +8,7 @@ function MakeMove(sender, move) {
 
             $.post(create_move_url, {'move': move},
                 function(data) {
-                    SwapUser();
-
-                    if(data[0] != '') {
-                        $("#cell" + data[0]).html(computer);
-                    }
-
-                    if (data[1] == "Over") {
-                        SetMessage("GAME OVER! It was a tie");
-                    }
-                    else if (data[1] == "X" || data[1] == "O") {
-                        winner = data[1];
-                        SetMessage("THE WINNER IS " + data[1]);
-                    }
-
+                    // successfully made a move
                 }
             )
         }

@@ -23,21 +23,16 @@ from gevent.greenlet import Greenlet
 
 REDIS_HOST = getattr(settings, 'REDIS_HOST', 'localhost')
 
-def sub_listener(socketio, chan):
-        print 'in sublistener...'
+def _sub_listener(socketio, chan):
         red = Redis(REDIS_HOST)
         red.subscribe(chan)
-
+        print 'subscribed on chan ', chan
         while True:
             for i in red.listen():
-                print 'sending message'
                 socketio.send({'message': i})
 
 def socketio(request):
     socketio = request.environ['socketio']
-
-    if socketio.on_connect():
-        print 'connecting'
 
     while True:
         message = socketio.recv()
@@ -47,7 +42,7 @@ def socketio(request):
 
             if message[0] == 'subscribe':
                 print 'spawning sub listener'
-                g = Greenlet.spawn(sub_listener, socketio, message[1])
+                g = Greenlet.spawn(_sub_listener, socketio, message[1])
 
     return HttpResponse()
 
@@ -56,35 +51,42 @@ def create_move(request, game_id):
     game = _get_game(request.user, game_id)
     if request.POST:
         move = int(request.POST['move'])
-        player = Player_X if game.player1 == request.user else Player_O
+        red = Redis(REDIS_HOST)
+
+        # get player of move
+        tic_player = Player_X if game.player1 == request.user else Player_O
 
         GameMove(game=game, player=request.user, move=move).save()
-
         board = game.get_board()
-        board.make_move(move, player)
+        board.make_move(move, tic_player)
 
-        red = Redis(REDIS_HOST)
-        red.publish('#%d' % game.id, [player, move])
+        # get opponent
+        opponent_player = Player_O if tic_player == Player_X else Player_X
+        opponent_user = game.player1 if tic_player == Player_O else game.player2
 
-        # Are we playing against a bot?
-        computer = User.objects.get(username='bot')
+        # get computer
+        computer_user = _get_computer() 
+        playing_computer = computer_user in [game.player1, game.player2]
 
-        if computer in [game.player1, game.player2]:
-            if board.is_game_over():
-                return JsonResponse(['', "Over"])
+        # if game over, and not playing against computer,  send notification of move, and of game over
+        winner = board.get_winner()
+        import pdb;pdb.set_trace()
+        if board.is_game_over():
+            red.publish('%d' % request.user.id, ['game_over', game.id, winner])
 
-            move, board = _create_computer_move(game, board)
-
-            if board.is_game_over():
-                return JsonResponse(_game_over(board, move=move))
-
-            return JsonResponse([move, ''])
+            if not playing_computer:
+                red.publish('%d' % opponent_user.id, ['opponent_moved', game.id, tic_player, move])
+                red.publish('%d' % opponent_user.id, ['game_over', game.id, winner])
         else:
-            if board.is_game_over():
-                data = _game_over(board, move)
-                # have to revserse the data because I'm handling it differently
-                # on the redis calls, didn't want to rewrite
-                red.publish('#%d' % game.id, ['', data[0], board.get_winner()])
+            if playing_computer:
+                move, board = _create_computer_move(game, board)
+                if board.is_game_over():
+                    winner = board.get_winner()
+                    red.publish('%d' % request.user.id, ['game_over', game.id, winner])
+                else:
+                    red.publish('%d' % request.user.id, ['opponent_moved', game.id, opponent_player, move])
+            else:
+                red.publish('%d' % opponent_user.id, ['opponent_moved', game.id, tic_player, move])
 
     return HttpResponse()
 
@@ -98,26 +100,7 @@ def _create_computer_move(game, board):
 
     return move, board
 
-def _game_over(board, move=None):
-    winner = board.get_winner()
-
-    if move:
-        data = [move]
-    else:
-        data = ['']
-
-    if winner:
-        data.append(winner)
-        return data
-
-    if len(board.get_valid_moves()) == 0:
-        data.append('Over');
-        return data
-
-def JsonResponse(data):
-    return HttpResponse(simplejson.dumps(data), mimetype='application/json')
-
-def _get_bot():
+def _get_computer():
     try:
         bot = User.objects.get(username='bot')
     except User.DoesNotExist:
@@ -128,7 +111,7 @@ def _get_bot():
 
 @login_required
 def create_computer_game(request):
-    bot = _get_bot()
+    bot = _get_computer()
 
     coin_toss = random.choice([0, 1])
 
@@ -149,7 +132,7 @@ def create_computer_game(request):
 
 @login_required
 def view_game(request, game_id, template_name='core/view_game.html'):
-    bot = _get_bot()
+    bot = _get_computer()
 
     game = _get_game(request.user, game_id)
 
@@ -191,6 +174,9 @@ def accept_invite(request, key):
 
         game.save()
 
+        red = Redis(REDIS_HOST)
+        red.publish('%d' % invite.inviter.id, ['game_started', game.id, str(request.user.username)])
+
         # No reason to keep the invites around
         invite.delete()
 
@@ -229,6 +215,10 @@ def game_list(request, template_name='core/game_list.html'):
                 current_site = Site.objects.get_current()
                 messages.add_message(request, messages.SUCCESS, 'Invite was sent!')
 
+                if invite.invitee:
+                    red = Redis(REDIS_HOST)
+                    red.publish('%d' % invite.invitee.id, ['new_invite', str(request.user.username), url])
+
                 send_mail('You are invited to play tic tac toe :)', 'Click here! %s%s' % (current_site.domain, url), 'sontek@gmail.com',
                             [email], fail_silently=False)
 
@@ -247,4 +237,3 @@ def _get_game(user, game_id):
         raise Http404 
 
     return game
-
