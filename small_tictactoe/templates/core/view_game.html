@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <title>TicTacToe</title>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}style.css" />
+        <script type="text/javascript" src="{{ STATIC_URL }}jquery-1.5.1.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}django.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}socket.io.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+        var player = "{{ player }}";
+        var current_player = "{{ current_player }}";
+        var game_id = {{ game_id }};
+        var user_id = {{ request.user.id }};
+        var game_over = {{ game_over|lower }};
+        var create_url = "{% url create_move game_id %}";
+
+        var socket = new io.Socket(null, {port: {{ request.environ.SERVER_PORT }}, rememberTransport: false});
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}game.js"></script>
+    You are: {{ player }}
+    <div id="messages">
+        {% if winner == None %}
+            {% if player == current_player %}
+                Your turn
+            {% else %}
+                Your opponents turn
+            {% endif %}
+        {% else %}
+            {% if winner == "" %}
+                Its a tie!
+            {% else %}
+                {{ winner }} wins!
+            {% endif %}
+        {% endif %}
+    </div>
+    {% for row in board %}
+        <div class="cell" id="cell{{ forloop.counter0 }}" onclick="MakeMove(this, '{{ forloop.counter0 }}')">
+            {{ row }}
+        </div>
+        {% if forloop.counter|divisibleby:3 %}
+            <br class="clear" />
+        {% endif %}
+    {% endfor %}
+    </body>
+</html>

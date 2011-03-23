@@ -1,0 +1,11 @@
+.cell {
+    border: solid 1px #000;
+    width: 100px;
+    height: 100px;
+    float: left;
+    text-align: center;
+    font-size: 70px;
+}
+.clear {
+    clear: both;
+}
