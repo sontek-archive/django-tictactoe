@@ -1,0 +1,5 @@
+Django
+gevent
+greenlet
+mock
+redis
