@@ -14,7 +14,6 @@
     {% if user.is_authenticated %}
         <script type="text/javascript">
             var user_id = {{ request.user.id }};
-            var socket = new io.Socket(null, {port: {{ request.environ.SERVER_PORT }}, rememberTransport: false});
         </script>
     {% endif %}
 </head>

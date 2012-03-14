@@ -6,7 +6,7 @@ if ($("#notifications").text().trim() == "") {
     $("#notifications").hide();
 }
 
-socket.connect();
+socket = io.connect();
 
 socket.on("message", function(obj){
     if (obj.message.type == "message") {
