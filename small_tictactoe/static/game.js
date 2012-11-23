@@ -1,4 +1,5 @@
-socket.connect();
+var socket = io.connect();
+
 
 socket.on("message", function(obj){
     if (obj.message.type == "message") {
@@ -51,7 +52,7 @@ function SwapUser() {
     }
 }
 
-socket.send("subscribe:" + user_id);
+socket.emit("subscribe:" + user_id);
 
 function SetMessage(message) {
     $("#messages").html("<div>" + message + "</div>");

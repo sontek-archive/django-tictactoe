@@ -16,7 +16,7 @@
         var game_over = {{ game_over|lower }};
         var create_url = "{% url create_move game_id %}";
 
-        var socket = new io.Socket(null, {port: {{ request.environ.SERVER_PORT }}, rememberTransport: false});
+//        var socket = new io.Socket(null, {port: {{ request.environ.SERVER_PORT }}, rememberTransport: false});
     </script>
     <script type="text/javascript" src="{{ STATIC_URL }}game.js"></script>
     You are: {{ player }}
