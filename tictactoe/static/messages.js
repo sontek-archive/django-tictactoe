@@ -6,12 +6,12 @@ if ($("#notifications").text().trim() == "") {
     $("#notifications").hide();
 }
 
-socket = io.connect();
+socket = io.connect("/game");
 
 socket.on("message", function(obj){
-    if (obj.message.type == "message") {
-        var data = eval(obj.message.data);
-
+    if (obj.type == "message") {
+        var data = eval(obj.data);
+        
         if (data[0] == "new_invite") {
             SetNotificationMessage("You have a new game invite from " + data[1] + "<a href='" + data[2] + "'>Accept?</a>");
         }
