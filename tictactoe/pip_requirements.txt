@@ -3,5 +3,5 @@ django-registration
 gevent
 redis
 simplejson
--e git+git@github.com:sontek/gevent-socketio.git#egg=gevent_socketio
--e git+git@github.com:abourget/gevent-websocket.git#egg=gevent_websocket
+-e git+git://github.com/abourget/gevent-socketio.git
+-e git+git://github.com/abourget/gevent-websocket.git

@@ -1,11 +1,12 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib.auth.decorators import login_required
+import socketio.sdjango
+
 from core.views import (game_list,
     create_computer_game, 
     view_game, 
     create_move,
-    accept_invite,
-    socketio,
+    accept_invite
 )
 
 urlpatterns = patterns('core.views',
@@ -41,7 +42,7 @@ urlpatterns = patterns('core.views',
     ),
     url(
         regex=r'^socket\.io',
-        view=socketio
+        view=include(socketio.sdjango.urls)
     ),
 )
 

@@ -19,10 +19,11 @@ from django.conf import settings
 from gevent.greenlet import Greenlet
 
 from socketio.namespace import BaseNamespace
-from socketio import socketio_manage
+from socketio.sdjango import namespace
 
 REDIS_HOST = getattr(settings, 'REDIS_HOST', 'localhost')
 
+@namespace('/game')
 class GameNamespace(BaseNamespace):
     def listener(self, chan):
             red = redis.StrictRedis(REDIS_HOST)
@@ -33,22 +34,13 @@ class GameNamespace(BaseNamespace):
 
             while True:
                 for i in red.listen():
-                    self.send({'message': i}, json=True)
+                    self.emit('message', i)
 
     def recv_message(self, message):
         action, pk = message.split(':')
 
         if action == 'subscribe':
             Greenlet.spawn(self.listener, pk)
-
-def socketio(request):
-    socketio_manage(request.environ,
-        {
-            '': GameNamespace,
-        }, request=request
-    )
-
-    return HttpResponse()
 
 
 @login_required
